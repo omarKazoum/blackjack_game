@@ -4,10 +4,13 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Stream;
+
 /**
  * Unit test for simple App.
  */
-public class AppTest 
+public class AppTest
     extends TestCase
 {
     /**
@@ -33,6 +36,8 @@ public class AppTest
      */
     public void testApp()
     {
-        assertTrue( true );
+        Integer i1=new Integer(1);
+        Integer i2=new Integer(1);
+        System.out.println(i1.equals(i2));
     }
 }
