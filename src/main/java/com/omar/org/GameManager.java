@@ -10,7 +10,14 @@ public class GameManager {
     private static List<Card> piocheCardsList;
 
     public static void initGame(){
-        System.out.println("--------Welcome To Blackjack-------");
+        changeConsoleColorTo(ConsoleColors.YELLOW_BOLD);
+        System.out.print("\uD83D\uDD90\uD83D\uDD90\uD83D\uDD90\uD83D\uDD90\uD83D\uDD90");
+        changeConsoleColorTo(ConsoleColors.RESET);
+        System.out.print("Welcome To Blackjack");
+        changeConsoleColorTo(ConsoleColors.YELLOW_BOLD);
+        System.out.println("\uD83D\uDD90\uD83D\uDD90\uD83D\uDD90\uD83D\uDD90\uD83D\uDD90");
+        changeConsoleColorTo(ConsoleColors.RESET);
+        System.out.println("");
         clearScreen();
         playerCardsList=new LinkedList<>();
         bankCardsList=new LinkedList<>();
@@ -27,12 +34,12 @@ public class GameManager {
         while(!(isBlackJack() || isLost() || isStand || piocheCardsList.isEmpty()) ){
             showCards(false);
             Map<Integer,String> options=new Hashtable<>();
-            options.put(Constants.PLAYER_ACTION_STAND,"stand");
-            options.put(Constants.PLAYER_ACTION_HIT,"hit");
+            options.put(Constants.PLAYER_ACTION_HIT,ConsoleColors.PURPLE_BOLD+"%s"+"\uD83D\uDC50"+"Piocher"+ConsoleColors.RESET);
+            options.put(Constants.PLAYER_ACTION_STAND,ConsoleColors.YELLOW_BOLD+"%s"+"\uD83E\uDD1A"+"Arréter"+ConsoleColors.RESET);
             int option=-1;
             while (!options.containsKey(option)) {
                 System.out.println("Que souhaitez vous faire?");
-                options.keySet().forEach(ok -> System.out.println(ok + "=>" + options.get(ok)));
+                options.keySet().forEach(ok -> System.out.println(String.format(options.get(ok),ok + "=>") ));
                 option=getScanner().nextInt();
             }
             switch (option){
@@ -46,73 +53,52 @@ public class GameManager {
         }
         showResults();
     }
-
     private static void showCards(boolean showAll) {
-        System.out.println("your cards:");
+        changeConsoleColorTo(ConsoleColors.BLUE);
+        System.out.println("Vos cartes:");
         printCardsValues(playerCardsList);
         System.out.println("value:"+getCardsSum(playerCardsList));
+        changeConsoleColorTo(ConsoleColors.YELLOW);
         System.out.println("dealer's "+(showAll?"":"visible")+" cards:");
         printCardsValues(bankCardsList.stream().skip(showAll?0:1).collect(Collectors.toList()));
-        System.out.println("value:"+getCardsSum(bankCardsList.stream().skip(1).collect(Collectors.toList())));
+        System.out.println("value:"+getCardsSum(bankCardsList.stream().skip(showAll?0:1).collect(Collectors.toList())));
+        changeConsoleColorTo(ConsoleColors.RESET);
     }
-
-    private static void playerActionStand() {
-        showResults();
-    }
-
     private static void showResults() {
         showCards(true);
-        //player cards alone are beyond 21
-        //dealer cards alone are beyond 21
-        //player and dealer are beyond 21
-        //dealer or player has 21
-        //equal values
-        //one has point more than the other
-
-        //bust
-        //win
-        //lost
-
         int playerPoints=getCardsSum(playerCardsList);
         int dealerPoints=getCardsSum(bankCardsList);
-        if(playerPoints>21){
-            System.out.println("Perdu!");
-        }else if(playerPoints==21){
-            System.out.println("Blackjack!");
-        }else if(playerPoints>dealerPoints){
-            System.out.println("Gagné!");
+        int result=0;
+        if(playerPoints==21){
+            result=Constants.GAME_OUTCOME_BLACKJACK;
+        }else if(playerPoints>21){
+            result=Constants.GAME_OUTCOME_LOST;
+        }else if(playerPoints<21){
+            if(dealerPoints==21)
+                result=Constants.GAME_OUTCOME_LOST;
+            else if(dealerPoints<21){
+                if(playerPoints>dealerPoints){
+                    result=Constants.GAME_OUTCOME_WON;
+                }else if(playerPoints<dealerPoints)
+                    result=Constants.GAME_OUTCOME_LOST;
+                else
+                    result=Constants.GAME_OUTCOME_SETTLE;;
+            }else
+                result=Constants.GAME_OUTCOME_WON;;
         }else{
-            System.out.println("Perdu!");
+            result=Constants.GAME_OUTCOME_LOST;;
         }
-        /*
-        if(playerPoints==dealerPoints){
-            System.out.println("Vous avez eu une équivalence");
-            return;
-        }else if(dealerPoints==21 || (playerPoints>21 && dealerPoints<21)){
-            System.out.println("La banque gagne");
-        }else if(playerPoints==21 || (playerPoints<21 && playerPoints>dealerPoints)){
-            System.out.println("Vous avez gagné");
-        }
-*/
-
-
-
-
-
-
+        printFinaleMessage(result);
     }
-
     private static void playActionHit() {
         playerCardsList.add(pullRandomCard());
     }
-
     public static boolean isLost(){
         return getCardsSum(playerCardsList)>21;
     }
-
     public static boolean promptUserForPlayAgain(){
         System.out.println("Voulez vous jouer un autre tourne (tapez 'O' pour Oui ou bien un autre caractère pour quiter)?");
-        return getScanner().next().equalsIgnoreCase("o");
+        return getScanner().next().equalsIgnoreCase("O");
 
     }
     public static Card pullRandomCard(){
@@ -156,10 +142,31 @@ public class GameManager {
         return getCardsSum(playerCardsList)==21;
 
     }
+    public static void changeConsoleColorTo(String color){
+        System.out.print(color);
+    }
+    public static void printFinaleMessage(int result){
 
-    //double only for the first turn (for the player)
-    //second time > hit(take another card) or stand
-    //
+        switch(result){
+            case Constants.GAME_OUTCOME_LOST:
+                changeConsoleColorTo(ConsoleColors.RED_BOLD_BRIGHT);
+                System.out.println("\uD83D\uDE35Perdu\uD83D\uDE35");
+                break;
+            case Constants.GAME_OUTCOME_BLACKJACK:
+                changeConsoleColorTo(ConsoleColors.GREEN_BOLD_BRIGHT);
+                System.out.println("\uD83E\uDD29Blackjack!\uD83E\uDD29");
+                break;
+            case Constants.GAME_OUTCOME_WON:
+                changeConsoleColorTo(ConsoleColors.GREEN_BOLD);
+                System.out.println("\uD83D\uDE00gagné\uD83D\uDE00");
+                break;
+            case Constants.GAME_OUTCOME_SETTLE:
+                changeConsoleColorTo(ConsoleColors.YELLOW_BOLD);
+                System.out.println("\uD83D\uDE4Fégalité\uD83D\uDE4F");
+                break;
+        }
+        changeConsoleColorTo(ConsoleColors.RESET);
+    }
 
 
 
