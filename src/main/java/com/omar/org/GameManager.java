@@ -133,15 +133,15 @@ public class GameManager {
     }
     public static int getCardsSum(List<Card> cards){
         int cardsTotalValue=0;
-        cardsTotalValue+=cards.stream().filter(c->c.cardHeight!=Card.Height.AS_1).map(c->c.cardHeight.getIntValue()).map(iv->iv<=10?iv:10).reduce(0,Integer::sum);
-        long asCardsCount=cards.stream().filter(c->c.cardHeight==Card.Height.AS_1).count();
-        if(asCardsCount==1){
+        cardsTotalValue+=cards.stream().filter(c->c.cardHeight!=Card.Height.ACE_1).map(c->c.cardHeight.getIntValue()).map(iv->iv<=10?iv:10).reduce(0,Integer::sum);
+        long aceCardsCount=cards.stream().filter(c->c.cardHeight==Card.Height.ACE_1).count();
+        if(aceCardsCount==1){
                 if(cardsTotalValue+11>21)
                     cardsTotalValue+=1;
                 else
                     cardsTotalValue+=11;
-        }else if(asCardsCount>1){
-            cardsTotalValue+=asCardsCount;
+        }else if(aceCardsCount>1){
+            cardsTotalValue+=aceCardsCount;
         }
 
         return cardsTotalValue;

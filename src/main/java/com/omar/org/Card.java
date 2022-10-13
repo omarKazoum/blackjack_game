@@ -22,7 +22,7 @@ public class Card {
         return Integer.valueOf(this.cardColor+""+this.cardHeight);
     }
     public enum Height {
-        AS_1(1),
+        ACE_1(1),
         TWO_2(2),
         THREE_3(3),
         FOUR_4(4),
