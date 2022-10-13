@@ -6,7 +6,7 @@ import java.util.stream.Stream;
 
 public class GameManager {
     private static List<Card> playerCardsList;
-    private static List<Card> bankCardsList;
+    private static List<Card> dealerCardsList;
     private static List<Card> piocheCardsList;
 
     public static void initGame(){
@@ -20,7 +20,7 @@ public class GameManager {
         System.out.println("");
         clearScreen();
         playerCardsList=new LinkedList<>();
-        bankCardsList=new LinkedList<>();
+        dealerCardsList =new LinkedList<>();
         piocheCardsList=getOrderedCardsLIst();
     }
     public static void startGame(){
@@ -28,8 +28,8 @@ public class GameManager {
         playerCardsList.add(pullRandomCard());
         playerCardsList.add(pullRandomCard());
         //pull two cards for the dealer
-        bankCardsList.add(pullRandomCard());
-        bankCardsList.add(pullRandomCard());
+        dealerCardsList.add(pullRandomCard());
+        dealerCardsList.add(pullRandomCard());
         boolean isStand=false;
         while(!(isBlackJack() || isLost() || isStand || piocheCardsList.isEmpty()) ){
             showCards(false);
@@ -44,6 +44,7 @@ public class GameManager {
             }
             switch (option){
                 case Constants.PLAYER_ACTION_HIT:
+                    dealerTakeAction();
                     playActionHit();
                     break;
                 case Constants.PLAYER_ACTION_STAND:
@@ -53,21 +54,28 @@ public class GameManager {
         }
         showResults();
     }
+
+    private static void dealerTakeAction() {
+        if(getCardsSum(dealerCardsList)<15 && new Random().nextBoolean()){
+            dealerCardsList.add(pullRandomCard());
+        };
+    }
+
     private static void showCards(boolean showAll) {
         changeConsoleColorTo(ConsoleColors.BLUE);
         System.out.println("Vos cartes:");
         printCardsValues(playerCardsList);
-        System.out.println("value:"+getCardsSum(playerCardsList));
+        System.out.println("Valeur->"+getCardsSum(playerCardsList));
         changeConsoleColorTo(ConsoleColors.YELLOW);
         System.out.println("dealer's "+(showAll?"":"visible")+" cards:");
-        printCardsValues(bankCardsList.stream().skip(showAll?0:1).collect(Collectors.toList()));
-        System.out.println("value:"+getCardsSum(bankCardsList.stream().skip(showAll?0:1).collect(Collectors.toList())));
+        printCardsValues(dealerCardsList.stream().skip(showAll?0:1).collect(Collectors.toList()));
+        System.out.println("Valeur->:"+getCardsSum(dealerCardsList.stream().skip(showAll?0:1).collect(Collectors.toList())));
         changeConsoleColorTo(ConsoleColors.RESET);
     }
     private static void showResults() {
         showCards(true);
         int playerPoints=getCardsSum(playerCardsList);
-        int dealerPoints=getCardsSum(bankCardsList);
+        int dealerPoints=getCardsSum(dealerCardsList);
         int result=0;
         if(playerPoints==21){
             result=Constants.GAME_OUTCOME_BLACKJACK;
